@@ -5,6 +5,7 @@ from torch import nn
 from torch.utils.data import DataLoader
 from custom_dataset_fixed3 import PSAD_Dataset
 from resnet1d import ResNet1D
+from torch.utils.tensorboard import SummaryWriter
 
 BATCH_SIZE = 2
 EPOCHS = 2
@@ -19,7 +20,7 @@ def create_data_loader(train_data, batch_size):
     train_dataloader = DataLoader(train_data, batch_size=batch_size)
     return train_dataloader
 
-def train_single_epoch(model, data_loader, loss_fn, optimiser, device):
+def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_step, device):
 
     for inputs, targets in data_loader:
         inputs, targets = inputs, targets.squeeze(1)
@@ -32,14 +33,20 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, device):
         optimiser.zero_grad()
         loss.backward()
         optimiser.step()
+        # if global_step % 10 == 0:
+        #     writer.add_scalar('Loss/train', loss.item(), global_step)
+        global_step += 1
 
     print(f"Loss: {loss.item()}")
-
+    writer.add_scalar('Loss/train', loss.item(), global_step)
 
 def train(model, data_loader, loss_fn, optimiser, device, epochs):
+    writer = SummaryWriter()
+    global_step = 0
     for i in range(epochs):
         print(f"Epoch {i+1}")
-        train_single_epoch(model, data_loader, loss_fn, optimiser, device)
+        train_single_epoch(model, data_loader, loss_fn, optimiser,
+                           device=device, writer=writer, global_step=global_step)
         print("-------------------")
     print('Finished Training')
 
