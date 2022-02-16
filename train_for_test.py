@@ -10,7 +10,7 @@ BATCH_SIZE = 2
 EPOCHS = 2
 LEARNING_RATE = 0.001
 
-ANNOTATIONS_FILE = "/Users/valleotb/Downloads/UrbanSound8K/metadata/UrbanSound8K.csv"
+ANNOTATIONS_FILE = "abcd"
 AUDIO_DIR = "/Users/valleotb/Downloads/UrbanSound8K/audio"
 SAMPLE_RATE = 22050
 NUM_SAMPLES = 22050
