@@ -55,8 +55,8 @@ if __name__ == "__main__":
     EPOCHS = 10
     LEARNING_RATE = 0.001
 
-    FILENAME_DIR = '/Users/valleotb/Desktop/Valleotb/sample_metadata/metadata.json'
-    AUDIO_DIR = '/Users/valleotb/Desktop/Valleotb/sample_save'
+    FILENAME_DIR = '/content/drive/MyDrive/PSAD/sample_metadata/metadata.json'
+    AUDIO_DIR = '/content/drive/MyDrive/PSAD/sample_save'
 
     if torch.cuda.is_available():
         device = "cuda"
