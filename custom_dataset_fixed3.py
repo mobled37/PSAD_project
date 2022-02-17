@@ -29,7 +29,8 @@ class PSAD_Dataset(Dataset):
         return signal, torch.Tensor([label])
 
     def _get_audio_file_path(self, file_name):
-        path = os.path.join(f'{self.audio_folder_dir}/{file_name}')
+        # path = os.path.join(f'{self.audio_folder_dir}/{file_name}')
+        path = os.path.join(f'{file_name}')
         return path
 
     def _get_file_name(self, index, metadata_dir):

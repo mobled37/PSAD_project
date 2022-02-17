@@ -7,14 +7,14 @@ from custom_dataset_fixed3 import PSAD_Dataset
 from resnet1d import ResNet1D
 from torch.utils.tensorboard import SummaryWriter
 
-BATCH_SIZE = 2
-EPOCHS = 2
-LEARNING_RATE = 0.001
-
-ANNOTATIONS_FILE = "abcd"
-AUDIO_DIR = "/Users/valleotb/Downloads/UrbanSound8K/audio"
-SAMPLE_RATE = 22050
-NUM_SAMPLES = 22050
+# BATCH_SIZE = 2
+# EPOCHS = 2
+# LEARNING_RATE = 0.001
+#
+# ANNOTATIONS_FILE = "abcd"
+# AUDIO_DIR = "/Users/valleotb/Downloads/UrbanSound8K/audio"
+# SAMPLE_RATE = 22050
+# NUM_SAMPLES = 22050
 
 def create_data_loader(train_data, batch_size):
     train_dataloader = DataLoader(train_data, batch_size=batch_size)
@@ -56,7 +56,7 @@ if __name__ == "__main__":
     LEARNING_RATE = 0.001
 
     FILENAME_DIR = '/content/drive/MyDrive/PSAD/sample_metadata/metadata.json'
-    AUDIO_DIR = '/content/drive/MyDrive/PSAD/sample_save'
+    AUDIO_DIR = '/content/drive/MyDrive/PSAD/sample_save_2'
 
     if torch.cuda.is_available():
         device = "cuda"
