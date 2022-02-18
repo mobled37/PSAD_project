@@ -27,7 +27,7 @@ class PSAD_Dataset(Dataset):
             with multiprocessing.Pool(processes=8) as pool:
                 wav_dict_list = list(
                     tqdm.tqdm(
-                        pool.imap_unordered(self.load, self.wav_path_list),
+                        pool.imap_unordered(self.load, self.wav_path_list[:100]),
                         total=len(self.wav_path_list),
                         desc='pre-loading wav data'
                     )
