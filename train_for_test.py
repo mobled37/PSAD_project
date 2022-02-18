@@ -91,7 +91,7 @@ def train(model, data_loader, loss_fn, optimiser, device, epochs):
 
 if __name__ == "__main__":
     BATCH_SIZE = 64
-    EPOCHS = 3
+    EPOCHS = 10
     LEARNING_RATE = 0.001
 
     FILENAME_DIR = '/content/drive/MyDrive/PSAD/sample_metadata/metadata.json'
