@@ -79,7 +79,7 @@ if __name__ == "__main__":
     else:
         device = "cpu"
     print(f'Using {device} device')
-    torch.multiprocessing.set_sharing_strategy('spawn')
+    torch.multiprocessing.set_start_method('spawn')
 
 
 
