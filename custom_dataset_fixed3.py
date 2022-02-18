@@ -38,7 +38,7 @@ class PSAD_Dataset(Dataset):
     @staticmethod
     def load(fpath):
         y, sr = torchaudio.load(fpath)
-        return {id: y}
+        return {fpath: y}
 
     def __len__(self):
         # return len(json.load(open(f'{self.metadata_dir}')))
@@ -48,7 +48,7 @@ class PSAD_Dataset(Dataset):
         file_name = self._get_file_name(index)
         audio_path = self._get_audio_file_path(file_name)
         if self.load_first:
-            signal = self.wav_dict[audio_path]
+            signal = self.wav_dict[audio_path]  # signal에 '저ㅙ댜뢪' 가 들어가면 안되지
         else:
             signal, sr = torchaudio.load(audio_path)
         signal = signal.to(self.device)
