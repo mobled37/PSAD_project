@@ -51,7 +51,7 @@ def train(model, data_loader, loss_fn, optimiser, device, epochs):
     print('Finished Training')
 
 if __name__ == "__main__":
-    BATCH_SIZE = 8
+    BATCH_SIZE = 128
     EPOCHS = 100
     LEARNING_RATE = 0.001
 
