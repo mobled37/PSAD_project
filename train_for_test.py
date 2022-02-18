@@ -10,6 +10,7 @@ import tqdm
 import wandb
 from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_score
 import torchmetrics
+from torchmetrics import F1Score
 
 
 # BATCH_SIZE = 2
@@ -30,7 +31,8 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_st
                           total=len(data_loader),
                           position=1,
                           leave=True)
-    metric = torchmetrics.F1().to(device)
+    # metric = torchmetrics.F1().to(device)
+    f1 = F1Score().to(device)
     # for inputs, targets in data_loader:
     for idx, batch in enumerate(data_loader):
         inputs, targets = batch[0].to(device), batch[1].squeeze(1).to(device)
@@ -53,7 +55,8 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_st
 
         target_long = torch.reshape(target_long, (-1,)).to(device)
         predictions_long = torch.reshape(predictions_long, (-1,)).to(device)
-        f1 = metric(predictions_long, target_long)
+        # f1 = metric(predictions_long, target_long)
+        f1_sc = f1(predictions_long, target_long)
 
         # backpropagate loss and update weights
         optimiser.zero_grad()
@@ -65,7 +68,7 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_st
 
     wandb.log({
         'loss': loss.item(),
-        'F1 score': metric.compute()
+        'F1 score': f1_sc
         # 'accuracy_sc': accuracy_sc,
         # 'precision_sc': precision_sc,
         # 'f1_sc': f1_sc
@@ -141,5 +144,5 @@ if __name__ == "__main__":
     # train model
     train(cnn, train_data_loader, loss_fn, optimiser, device, EPOCHS)
 
-    torch.save(cnn.state_dict(), "checkpoints/psad_resnet.pth")
+    torch.save(cnn.state_dict(), "/content/drive/MyDrive/psad_resnet_checkpoints/psad_resnet.pth")
     print("Model Trained and Stored at cnn.pth")
