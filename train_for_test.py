@@ -42,13 +42,13 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_st
         '''
         f1 score 다루는 칸 
         '''
-        # predictions = predictions.detach().cpu().numpy() > .5
-        # targets = targets.detach().cpu().numpy() > .5
+        predictions = predictions.detach().cpu()
+        targets = targets.detach().cpu()
         # accuracy_sc = accuracy_score(targets, predictions)
         # precision_sc = precision_score(targets, predictions)
         # f1_sc = f1_score(targets, predictions)
-        target_long = torch.LongTensor(targets)
-        predictions_long = torch.LongTensor(predictions)
+        target_long = targets.type(torch.LongTensor).to(device)
+        predictions_long = (predictions > .5).type(torch.LongTensor).to(device)
         f1 = metric(predictions_long, target_long)
 
         # backpropagate loss and update weights
