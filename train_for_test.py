@@ -9,8 +9,7 @@ from torch.utils.tensorboard import SummaryWriter
 import tqdm
 import wandb
 import torchmetrics
-from torchmetrics import F1Score
-from torchmetrics.functional import accuracy
+from torchmetrics import F1Score, Accuracy, Recall
 
 def create_data_loader(train_data, batch_size):
     train_dataloader = DataLoader(train_data, batch_size=batch_size)
@@ -23,6 +22,8 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_st
                           leave=True)
 
     f1 = F1Score().to(device)
+    accuracy = Accuracy().to(device)
+    recall = Recall().to(device)
 
     # for inputs, targets in data_loader:
     for idx, batch in enumerate(data_loader):
@@ -45,6 +46,7 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_st
         # score
         f1_sc = f1(predictions_long, target_long)
         accuracy_sc = accuracy(predictions_long, target_long).to(device)
+        recall_sc = recall(predictions_long, target_long).to(device)
 
         # backpropagate loss and update weights
         optimiser.zero_grad()
@@ -56,6 +58,7 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_st
         wandb.log({
             'accuracy': accuracy_sc,
             'loss': loss.item(),
+            'recall': recall_sc,
             'F1 score': f1_sc
         })
 
