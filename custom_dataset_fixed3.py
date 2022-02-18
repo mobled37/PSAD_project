@@ -21,7 +21,8 @@ class PSAD_Dataset(Dataset):
         self.device = device
 
     def __len__(self):
-        return len(json.load(open(f'{self.metadata_dir}')))
+        # return len(json.load(open(f'{self.metadata_dir}')))
+        return len(self.wav_path_list)
 
     def __getitem__(self, index):
         file_name = self._get_file_name(index)
