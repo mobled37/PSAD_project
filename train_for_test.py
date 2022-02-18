@@ -30,7 +30,7 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_st
                           total=len(data_loader),
                           position=1,
                           leave=True)
-    metric = torchmetrics.F1()
+    metric = torchmetrics.F1().to(device)
     # for inputs, targets in data_loader:
     for idx, batch in enumerate(data_loader):
         inputs, targets = batch[0].to(device), batch[1].squeeze(1).to(device)
