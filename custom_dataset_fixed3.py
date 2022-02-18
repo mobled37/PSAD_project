@@ -48,7 +48,7 @@ class PSAD_Dataset(Dataset):
         file_name = self._get_file_name(index)
         audio_path = self._get_audio_file_path(file_name)
         if self.load_first:
-            signal = self.wav_list[audio_path]
+            signal = self.wav_list[index]
         else:
             signal, sr = torchaudio.load(audio_path)
         signal = signal.to(self.device)
