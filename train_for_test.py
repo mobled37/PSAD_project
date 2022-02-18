@@ -8,19 +8,9 @@ from resnet1d import ResNet1D
 from torch.utils.tensorboard import SummaryWriter
 import tqdm
 import wandb
-from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_score
 import torchmetrics
 from torchmetrics import F1Score
-
-
-# BATCH_SIZE = 2
-# EPOCHS = 2
-# LEARNING_RATE = 0.001
-#
-# ANNOTATIONS_FILE = "abcd"
-# AUDIO_DIR = "/Users/valleotb/Downloads/UrbanSound8K/audio"
-# SAMPLE_RATE = 22050
-# NUM_SAMPLES = 22050
+from torchmetrics.functional import accuracy
 
 def create_data_loader(train_data, batch_size):
     train_dataloader = DataLoader(train_data, batch_size=batch_size)
@@ -31,8 +21,10 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_st
                           total=len(data_loader),
                           position=1,
                           leave=True)
-    # metric = torchmetrics.F1().to(device)
+
+    accuracy_metric = accuracy().to(device)
     f1 = F1Score().to(device)
+
     # for inputs, targets in data_loader:
     for idx, batch in enumerate(data_loader):
         inputs, targets = batch[0].to(device), batch[1].squeeze(1).to(device)
@@ -50,28 +42,27 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_st
 
         target_long = torch.reshape(target_long, (-1,)).to(device)
         predictions_long = torch.reshape(predictions_long, (-1,)).to(device)
-        # f1 = metric(predictions_long, target_long)
+
+        # score
         f1_sc = f1(predictions_long, target_long)
+        accuracy_sc = accuracy_metric(predictions_long, target_long)
 
         # backpropagate loss and update weights
         optimiser.zero_grad()
         loss.backward()
         optimiser.step()
 
-
+        # logger
         prog_bar2.update()
-
         wandb.log({
+            'accuracy': accuracy_sc,
             'loss': loss.item(),
             'F1 score': f1_sc
         })
 
         global_step += 1
 
-
-
     print(f"Loss: {loss.item()}")
-
     writer.add_scalar('Loss/train', loss.item(), global_step)
 
 def train(model, data_loader, loss_fn, optimiser, device, epochs):
@@ -79,8 +70,6 @@ def train(model, data_loader, loss_fn, optimiser, device, epochs):
     global_step = 0
     for i in range(epochs):
         print(f"Epoch {i + 1}")
-        # tk0 = tqdm(data_loader, total=int(len(data_loader)))
-        # counter = 0
         train_single_epoch(model, data_loader, loss_fn, optimiser,
                            device=device, writer=writer, global_step=global_step)
         print("-------------------")
@@ -88,7 +77,7 @@ def train(model, data_loader, loss_fn, optimiser, device, epochs):
 
 if __name__ == "__main__":
     BATCH_SIZE = 64
-    EPOCHS = 10
+    EPOCHS = 100
     LEARNING_RATE = 0.001
 
     FILENAME_DIR = '/content/drive/MyDrive/PSAD/sample_metadata/metadata.json'
@@ -103,9 +92,9 @@ if __name__ == "__main__":
     else:
         device = "cpu"
     print(f'Using {device} device')
+
+    # multiprocessing
     torch.multiprocessing.set_start_method('spawn')
-
-
 
     usd = PSAD_Dataset(
         audio_folder_dir=AUDIO_DIR,
@@ -115,7 +104,6 @@ if __name__ == "__main__":
     )
     # create a data loader for the train set
     train_data_loader = DataLoader(usd, batch_size=BATCH_SIZE, num_workers=8)
-
 
     wandb.init()
     # construct model and assign it to device
