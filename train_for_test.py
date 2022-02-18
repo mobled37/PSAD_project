@@ -9,6 +9,7 @@ from torch.utils.tensorboard import SummaryWriter
 import tqdm
 import wandb
 from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_score
+import torchmetrics
 
 
 # BATCH_SIZE = 2
@@ -29,6 +30,7 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_st
                           total=len(data_loader),
                           position=1,
                           leave=True)
+    metric = torchmetrics.F1()
     # for inputs, targets in data_loader:
     for idx, batch in enumerate(data_loader):
         inputs, targets = batch[0].to(device), batch[1].squeeze(1).to(device)
@@ -40,11 +42,12 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_st
         '''
         f1 score 다루는 칸 
         '''
-        predictions = predictions.detach().cpu().numpy() > .5
-        targets = targets.detach().cpu().numpy() > .5
-        accuracy_sc = accuracy_score(targets, predictions)
-        precision_sc = precision_score(targets, predictions)
-        f1_sc = f1_score(targets, predictions)
+        # predictions = predictions.detach().cpu().numpy() > .5
+        # targets = targets.detach().cpu().numpy() > .5
+        # accuracy_sc = accuracy_score(targets, predictions)
+        # precision_sc = precision_score(targets, predictions)
+        # f1_sc = f1_score(targets, predictions)
+        f1 = metric(predictions, targets)
 
         # backpropagate loss and update weights
         optimiser.zero_grad()
@@ -53,12 +56,13 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_st
 
         global_step += 1
         prog_bar2.update()
-        wandb.log({
-            'loss': loss.item(),
-            'accuracy_sc': accuracy_sc,
-            'precision_sc': precision_sc,
-            'f1_sc': f1_sc
-        }, step=global_step)
+    wandb.log({
+        'loss': loss.item(),
+        'F1 score': metric.compute()
+        # 'accuracy_sc': accuracy_sc,
+        # 'precision_sc': precision_sc,
+        # 'f1_sc': f1_sc
+    }, step=global_step)
 
 
 
