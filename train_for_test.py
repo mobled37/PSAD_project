@@ -22,7 +22,6 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_st
                           position=1,
                           leave=True)
 
-    accuracy_metric = accuracy().to(device)
     f1 = F1Score().to(device)
 
     # for inputs, targets in data_loader:
@@ -45,7 +44,7 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_st
 
         # score
         f1_sc = f1(predictions_long, target_long)
-        accuracy_sc = accuracy_metric(predictions_long, target_long)
+        accuracy_sc = accuracy(predictions_long, target_long).to(device)
 
         # backpropagate loss and update weights
         optimiser.zero_grad()
