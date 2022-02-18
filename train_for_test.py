@@ -6,6 +6,7 @@ from torch.utils.data import DataLoader
 from custom_dataset_fixed3 import PSAD_Dataset
 from resnet1d import ResNet1D
 from torch.utils.tensorboard import SummaryWriter
+import tqdm
 
 # BATCH_SIZE = 2
 # EPOCHS = 2
@@ -21,7 +22,10 @@ def create_data_loader(train_data, batch_size):
     return train_dataloader
 
 def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_step, device):
-
+    prog_bar2 = tqdm.tqdm(desc=f'training in progress',
+                          total=len(data_loader),
+                          position=1,
+                          leave=True)
     for inputs, targets in data_loader:
         inputs, targets = inputs.to(device), targets.squeeze(1).to(device)
 
@@ -36,6 +40,7 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_st
         # if global_step % 10 == 0:
         #     writer.add_scalar('Loss/train', loss.item(), global_step)
         global_step += 1
+        prog_bar2.update()
 
     print(f"Loss: {loss.item()}")
     writer.add_scalar('Loss/train', loss.item(), global_step)
@@ -44,7 +49,9 @@ def train(model, data_loader, loss_fn, optimiser, device, epochs):
     writer = SummaryWriter()
     global_step = 0
     for i in range(epochs):
-        print(f"Epoch {i+1}")
+        print(f"Epoch {i + 1}")
+        # tk0 = tqdm(data_loader, total=int(len(data_loader)))
+        # counter = 0
         train_single_epoch(model, data_loader, loss_fn, optimiser,
                            device=device, writer=writer, global_step=global_step)
         print("-------------------")
