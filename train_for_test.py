@@ -44,11 +44,15 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_st
         '''
         predictions = predictions.detach().cpu()
         targets = targets.detach().cpu()
+
         # accuracy_sc = accuracy_score(targets, predictions)
         # precision_sc = precision_score(targets, predictions)
         # f1_sc = f1_score(targets, predictions)
         target_long = targets.type(torch.LongTensor).to(device)
         predictions_long = (predictions > .5).type(torch.LongTensor).to(device)
+
+        target_long = torch.reshape(target_long, (-1,))
+        predictions_long = torch.reshape(predictions_long, (-1,))
         f1 = metric(predictions_long, target_long)
 
         # backpropagate loss and update weights
