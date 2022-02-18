@@ -63,13 +63,15 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_st
         loss.backward()
         optimiser.step()
 
-        global_step += 1
+
         prog_bar2.update()
 
         wandb.log({
             'loss': loss.item(),
             'F1 score': f1_sc
         }, step=global_step)
+
+        global_step += 1
 
 
 
