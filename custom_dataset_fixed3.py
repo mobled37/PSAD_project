@@ -23,7 +23,7 @@ class PSAD_Dataset(Dataset):
         self.device = device
         self.load_first = load_first
         if load_first:
-            self.wav_list = {}
+            self.wav_dict = {}
             with multiprocessing.Pool(processes=8) as pool:
                 wav_dict_list = list(
                     tqdm.tqdm(
@@ -33,7 +33,7 @@ class PSAD_Dataset(Dataset):
                     )
                 )
             for dic in wav_dict_list:
-                self.wav_list.update(dic)
+                self.wav_dict.update(dic)
 
     @staticmethod
     def load(fpath):
@@ -48,7 +48,7 @@ class PSAD_Dataset(Dataset):
         file_name = self._get_file_name(index)
         audio_path = self._get_audio_file_path(file_name)
         if self.load_first:
-            signal = self.wav_list[index]
+            signal = self.wav_dict[audio_path]
         else:
             signal, sr = torchaudio.load(audio_path)
         signal = signal.to(self.device)
