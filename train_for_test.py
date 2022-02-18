@@ -8,6 +8,9 @@ from resnet1d import ResNet1D
 from torch.utils.tensorboard import SummaryWriter
 import tqdm
 import wandb
+from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_score
+import matplotlib.pyplot as plt
+%matplotlib_inlineb
 
 # BATCH_SIZE = 2
 # EPOCHS = 2
@@ -35,19 +38,33 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_st
         predictions = model(inputs)
         loss = loss_fn(predictions, targets)
 
+        '''
+        f1 score 다루는 칸 
+        '''
+        predictions = predictions.detach().cpu().numpy()
+        targets = targets.detach().cpu().numpy()
+        accuracy_sc = accuracy_score(targets, predictions)
+        precision_sc = precision_score(targets, predictions)
+        f1_sc = f1_score(targets, predictions)
+
         # backpropagate loss and update weights
         optimiser.zero_grad()
         loss.backward()
         optimiser.step()
-        # if global_step % 10 == 0:
-        #     writer.add_scalar('Loss/train', loss.item(), global_step)
+
         global_step += 1
         prog_bar2.update()
         wandb.log({
-            'loss': loss.item()
+            'loss': loss.item(),
+            'accuracy_sc': accuracy_sc,
+            'precision_sc': precision_sc,
+            'f1_sc': f1_sc
         }, step=global_step)
 
+
+
     print(f"Loss: {loss.item()}")
+
     writer.add_scalar('Loss/train', loss.item(), global_step)
 
 def train(model, data_loader, loss_fn, optimiser, device, epochs):

@@ -8,6 +8,7 @@ from torch.utils.data.dataloader import DataLoader
 import multiprocessing
 import tqdm
 
+
 class PSAD_Dataset(Dataset):
 
     def __init__(self,
@@ -50,7 +51,7 @@ class PSAD_Dataset(Dataset):
         audio_path = self._get_audio_file_path(file_name)
         if self.load_first:
             # audio_path
-            signal = self.wav_dict[audio_path]  # signal에 '저ㅙ댜뢪' 가 들어가면 안되지
+            signal = self.wav_dict[audio_path]
         else:
             signal, sr = torchaudio.load(audio_path)
         signal = signal.to(self.device)
