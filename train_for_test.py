@@ -47,8 +47,8 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_st
         # accuracy_sc = accuracy_score(targets, predictions)
         # precision_sc = precision_score(targets, predictions)
         # f1_sc = f1_score(targets, predictions)
-        target_long = torch.LongTensor(targets > .5)
-        predictions_long = torch.LongTensor(predictions > .5)
+        target_long = torch.LongTensor(targets)
+        predictions_long = torch.LongTensor(predictions)
         f1 = metric(predictions_long, target_long)
 
         # backpropagate loss and update weights
