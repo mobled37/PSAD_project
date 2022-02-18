@@ -58,6 +58,9 @@ if __name__ == "__main__":
     FILENAME_DIR = '/content/drive/MyDrive/PSAD/sample_metadata/metadata.json'
     AUDIO_DIR = '/content/drive/MyDrive/PSAD/sample_save'
 
+    # FILENAME_DIR = '/Users/valleotb/Desktop/Valleotb/sample_metadata/metadata.json'
+    # AUDIO_DIR = '/Users/valleotb/Desktop/Valleotb/sample_save'
+
     if torch.cuda.is_available():
         device = "cuda"
 
@@ -86,7 +89,7 @@ if __name__ == "__main__":
         stride=2,
         groups=1,
         n_block=4
-    ).to(device)
+    ).cuda()
 
     # instantiate loss function + optimiser
     loss_fn = nn.BCELoss()
