@@ -86,7 +86,8 @@ if __name__ == "__main__":
     usd = PSAD_Dataset(
         audio_folder_dir=AUDIO_DIR,
         metadata_dir=FILENAME_DIR,
-        device=device
+        device=device,
+        load_first=True
     )
     # create a data loader for the train set
     train_data_loader = DataLoader(usd, batch_size=BATCH_SIZE, num_workers=8)
