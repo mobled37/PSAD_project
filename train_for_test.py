@@ -9,8 +9,7 @@ from torch.utils.tensorboard import SummaryWriter
 import tqdm
 import wandb
 from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_score
-import matplotlib.pyplot as plt
-%matplotlib_inlineb
+
 
 # BATCH_SIZE = 2
 # EPOCHS = 2
