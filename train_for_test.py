@@ -40,8 +40,8 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_st
         '''
         f1 score 다루는 칸 
         '''
-        predictions = predictions.detach().cpu().numpy()
-        targets = targets.detach().cpu().numpy()
+        predictions = predictions.detach().cpu().numpy() > .5
+        targets = targets.detach().cpu().numpy() > .5
         accuracy_sc = accuracy_score(targets, predictions)
         precision_sc = precision_score(targets, predictions)
         f1_sc = f1_score(targets, predictions)
