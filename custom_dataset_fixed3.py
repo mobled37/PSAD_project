@@ -14,16 +14,19 @@ class PSAD_Dataset(Dataset):
                  device):
 
         self.audio_folder_dir = audio_folder_dir
-        self.metadata_dir = metadata_dir
+        metadata_path = metadata_dir
+        meta_data_json = json.load(open(metadata_path))
+        self.wav_path_list = list(meta_data_json.keys())
+
         self.device = device
 
     def __len__(self):
         return len(json.load(open(f'{self.metadata_dir}')))
 
     def __getitem__(self, index):
-        file_name = self._get_file_name(index, self.metadata_dir)
-        audio_dir = self._get_audio_file_path(file_name)
-        signal, sr = torchaudio.load(audio_dir)
+        file_name = self._get_file_name(index)
+        audio_path = self._get_audio_file_path(file_name)
+        signal, sr = torchaudio.load(audio_path)
         signal = signal.to(self.device)
         label = self._get_audio_label(index, self.metadata_dir)
         return signal, torch.Tensor([label])
@@ -33,10 +36,10 @@ class PSAD_Dataset(Dataset):
         path = os.path.join(f'{file_name}')
         return path
 
-    def _get_file_name(self, index, metadata_dir):
-        meta_data_json = json.load(open(metadata_dir))
-        meta_dict = list(meta_data_json.keys())
-        return meta_dict[index]
+    def _get_file_name(self, index):
+        # meta_dict = list(meta_data_json.keys())
+        # return meta_dict[index]
+        return self.wav_path_list[index]
 
     def _get_audio_label(self, index, metadata_dir):
         meta_data_json = json.load(open(metadata_dir))
