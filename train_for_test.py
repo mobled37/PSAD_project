@@ -51,8 +51,8 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_st
         target_long = targets.type(torch.LongTensor).to(device)
         predictions_long = (predictions > .5).type(torch.LongTensor).to(device)
 
-        target_long = torch.reshape(target_long, (-1,))
-        predictions_long = torch.reshape(predictions_long, (-1,))
+        target_long = torch.reshape(target_long, (-1,)).to(device)
+        predictions_long = torch.reshape(predictions_long, (-1,)).to(device)
         f1 = metric(predictions_long, target_long)
 
         # backpropagate loss and update weights
