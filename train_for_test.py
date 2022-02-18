@@ -87,7 +87,7 @@ if __name__ == "__main__":
         device=device
     )
     # create a data loader for the train set
-    train_data_loader = DataLoader(usd, batch_size=BATCH_SIZE)
+    train_data_loader = DataLoader(usd, batch_size=BATCH_SIZE, num_workers=8)
 
 
     wandb.init()
