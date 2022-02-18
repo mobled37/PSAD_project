@@ -34,6 +34,7 @@ class PSAD_Dataset(Dataset):
                 )
             for dic in wav_dict_list:
                 self.wav_dict.update(dic)
+            print(self.wav_dict)
 
     @staticmethod
     def load(fpath):
@@ -48,6 +49,7 @@ class PSAD_Dataset(Dataset):
         file_name = self._get_file_name(index)
         audio_path = self._get_audio_file_path(file_name)
         if self.load_first:
+            audio_path
             signal = self.wav_dict[audio_path]  # signal에 '저ㅙ댜뢪' 가 들어가면 안되지
         else:
             signal, sr = torchaudio.load(audio_path)
