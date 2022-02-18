@@ -18,7 +18,7 @@ class PSAD_Dataset(Dataset):
         self.audio_folder_dir = audio_folder_dir
         metadata_path = metadata_dir
         self.meta_data_json = json.load(open(metadata_path))
-        self.wav_path_list = list(self.meta_data_json.keys())
+        self.wav_path_list = list(self.meta_data_json.keys())[:100]
 
         self.device = device
         self.load_first = load_first
@@ -27,14 +27,14 @@ class PSAD_Dataset(Dataset):
             with multiprocessing.Pool(processes=8) as pool:
                 wav_dict_list = list(
                     tqdm.tqdm(
-                        pool.imap_unordered(self.load, self.wav_path_list[:100]),
+                        pool.imap_unordered(self.load, self.wav_path_list),
                         total=len(self.wav_path_list),
                         desc='pre-loading wav data'
                     )
                 )
             for dic in wav_dict_list:
                 self.wav_dict.update(dic)
-            print(self.wav_dict)
+            # print(self.wav_dict)
 
     @staticmethod
     def load(fpath):
