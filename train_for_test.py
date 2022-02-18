@@ -66,13 +66,10 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_st
         global_step += 1
         prog_bar2.update()
 
-    wandb.log({
-        'loss': loss.item(),
-        'F1 score': f1_sc
-        # 'accuracy_sc': accuracy_sc,
-        # 'precision_sc': precision_sc,
-        # 'f1_sc': f1_sc
-    }, step=global_step)
+        wandb.log({
+            'loss': loss.item(),
+            'F1 score': f1_sc
+        }, step=global_step)
 
 
 
@@ -145,4 +142,4 @@ if __name__ == "__main__":
     train(cnn, train_data_loader, loss_fn, optimiser, device, EPOCHS)
 
     torch.save(cnn.state_dict(), "/content/drive/MyDrive/psad_resnet_checkpoints/psad_resnet.pth")
-    print("Model Trained and Stored at cnn.pth")
+    print("Model Trained and Stored at psad_resnet.pth")
