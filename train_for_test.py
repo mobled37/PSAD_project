@@ -62,6 +62,7 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_st
 
         global_step += 1
         prog_bar2.update()
+
     wandb.log({
         'loss': loss.item(),
         'F1 score': metric.compute()
@@ -90,7 +91,7 @@ def train(model, data_loader, loss_fn, optimiser, device, epochs):
 
 if __name__ == "__main__":
     BATCH_SIZE = 64
-    EPOCHS = 100
+    EPOCHS = 3
     LEARNING_RATE = 0.001
 
     FILENAME_DIR = '/content/drive/MyDrive/PSAD/sample_metadata/metadata.json'
