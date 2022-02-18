@@ -27,8 +27,9 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_st
                           total=len(data_loader),
                           position=1,
                           leave=True)
-    for inputs, targets in data_loader:
-        inputs, targets = inputs.to(device), targets.squeeze(1).to(device)
+    # for inputs, targets in data_loader:
+    for idx, batch in enumerate(data_loader):
+        inputs, targets = batch[0].to(device), batch[1].squeeze(1).to(device)
 
         # calculate loss
         predictions = model(inputs)
@@ -87,7 +88,7 @@ if __name__ == "__main__":
         device=device
     )
     # create a data loader for the train set
-    train_data_loader = DataLoader(usd, batch_size=BATCH_SIZE, num_workers=8)
+    train_data_loader = DataLoader(usd, batch_size=BATCH_SIZE, num_workers=4)
 
 
     wandb.init()
