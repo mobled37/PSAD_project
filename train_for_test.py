@@ -7,6 +7,7 @@ from custom_dataset_fixed3 import PSAD_Dataset
 from resnet1d import ResNet1D
 from torch.utils.tensorboard import SummaryWriter
 import tqdm
+import wandb
 
 # BATCH_SIZE = 2
 # EPOCHS = 2
@@ -41,6 +42,9 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_st
         #     writer.add_scalar('Loss/train', loss.item(), global_step)
         global_step += 1
         prog_bar2.update()
+        wandb.log({
+            'loss': loss.item()
+        }, step=global_step)
 
     print(f"Loss: {loss.item()}")
     writer.add_scalar('Loss/train', loss.item(), global_step)
@@ -86,7 +90,7 @@ if __name__ == "__main__":
     train_data_loader = DataLoader(usd, batch_size=BATCH_SIZE)
 
 
-
+    wandb.init()
     # construct model and assign it to device
     cnn = ResNet1D(
         in_channels=1,
@@ -97,6 +101,7 @@ if __name__ == "__main__":
         groups=1,
         n_block=4
     ).to(device)
+    wandb.watch(cnn)
 
     # instantiate loss function + optimiser
     loss_fn = nn.BCELoss()
