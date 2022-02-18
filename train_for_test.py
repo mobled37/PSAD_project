@@ -56,7 +56,7 @@ if __name__ == "__main__":
     LEARNING_RATE = 0.001
 
     FILENAME_DIR = '/content/drive/MyDrive/PSAD/sample_metadata/metadata.json'
-    AUDIO_DIR = '/content/drive/MyDrive/PSAD/sample_save_2'
+    AUDIO_DIR = '/content/drive/MyDrive/PSAD/sample_save'
 
     if torch.cuda.is_available():
         device = "cuda"
