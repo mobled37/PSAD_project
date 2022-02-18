@@ -5,13 +5,15 @@ import json
 from torch.utils.data import Dataset
 import torchaudio
 from torch.utils.data.dataloader import DataLoader
+import multiprocessing
+import tqdm
 
 class PSAD_Dataset(Dataset):
 
     def __init__(self,
                  audio_folder_dir,
                  metadata_dir,
-                 device):
+                 device, load_first: bool = False):
 
         self.audio_folder_dir = audio_folder_dir
         metadata_path = metadata_dir
@@ -19,6 +21,24 @@ class PSAD_Dataset(Dataset):
         self.wav_path_list = list(self.meta_data_json.keys())
 
         self.device = device
+        self.load_first = load_first
+        if load_first:
+            self.wav_list = {}
+            with multiprocessing.Pool(processes=8) as pool:
+                wav_dict_list = list(
+                    tqdm.tqdm(
+                        pool.imap_unordered(self.load, self.wav_path_list),
+                        total=len(self.wav_path_list),
+                        desc='pre-loading wav data'
+                    )
+                )
+            for dic in wav_dict_list:
+                self.wav_list.update(dic)
+
+    @staticmethod
+    def load(fpath):
+        y, sr = torchaudio.load(fpath)
+        return {id: y}
 
     def __len__(self):
         # return len(json.load(open(f'{self.metadata_dir}')))
@@ -27,7 +47,10 @@ class PSAD_Dataset(Dataset):
     def __getitem__(self, index):
         file_name = self._get_file_name(index)
         audio_path = self._get_audio_file_path(file_name)
-        signal, sr = torchaudio.load(audio_path)
+        if self.load_first:
+            signal = self.wav_list[audio_path]
+        else:
+            signal, sr = torchaudio.load(audio_path)
         signal = signal.to(self.device)
         label = self._get_audio_label(index, self.wav_path_list)
         return signal, torch.Tensor([label])
