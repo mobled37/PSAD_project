@@ -41,15 +41,10 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_st
         predictions = model(inputs)
         loss = loss_fn(predictions, targets)
 
-        '''
-        f1 score 다루는 칸 
-        '''
+        # F1 Score
         predictions = predictions.detach().cpu()
         targets = targets.detach().cpu()
 
-        # accuracy_sc = accuracy_score(targets, predictions)
-        # precision_sc = precision_score(targets, predictions)
-        # f1_sc = f1_score(targets, predictions)
         target_long = targets.type(torch.LongTensor).to(device)
         predictions_long = (predictions > .5).type(torch.LongTensor).to(device)
 
@@ -69,7 +64,7 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_st
         wandb.log({
             'loss': loss.item(),
             'F1 score': f1_sc
-        }, step=global_step)
+        })
 
         global_step += 1
 
