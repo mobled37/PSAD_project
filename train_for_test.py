@@ -23,7 +23,7 @@ def create_data_loader(train_data, batch_size):
 def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_step, device):
 
     for inputs, targets in data_loader:
-        inputs, targets = inputs, targets.squeeze(1)
+        inputs, targets = inputs.to(device), targets.squeeze(1).to(device)
 
         # calculate loss
         predictions = model(inputs)
@@ -89,7 +89,7 @@ if __name__ == "__main__":
         stride=2,
         groups=1,
         n_block=4
-    ).cuda()
+    ).to(device)
 
     # instantiate loss function + optimiser
     loss_fn = nn.BCELoss()
