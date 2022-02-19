@@ -83,7 +83,8 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_st
         # 'bi_acc': biaccuracy_sc
     }
 
-    print(f"Loss: {loss_sum}")
+    print(f"Loss: {loss_sum / len(data_loader)}")
+
     writer.add_scalar('Loss/train', loss.item(), global_step)
     return metrics, global_step
 
