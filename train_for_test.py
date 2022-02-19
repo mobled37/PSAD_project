@@ -15,14 +15,14 @@ def create_data_loader(train_data, batch_size):
     train_dataloader = DataLoader(train_data, batch_size=batch_size)
     return train_dataloader
 
-def binary_acc(y_pred, y_test):
-    y_pred_tag = torch.round(torch.sigmoid(y_pred))
-
-    correct_results_sum = (y_pred_tag == y_test).sum().float()
-    acc = correct_results_sum / y_test.shape[0]
-    acc = torch.round(acc * 100)
-
-    return acc
+# def binary_acc(y_pred, y_test):
+#     y_pred_tag = torch.round(torch.sigmoid(y_pred))
+#
+#     correct_results_sum = (y_pred_tag == y_test).sum().float()
+#     acc = correct_results_sum / y_test.shape[0]
+#     acc = torch.round(acc * 100)
+#
+#     return acc
 
 def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_step, device):
     prog_bar2 = tqdm.tqdm(desc=f'training in progress',
@@ -44,10 +44,11 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_st
 
         # F1 Score
         predictions = predictions.detach().cpu()
+        pred_binary = predictions > .5
         targets = targets.detach().cpu()
 
         target_long = targets.type(torch.LongTensor).to(device)
-        predictions_long = predictions.type(torch.LongTensor).to(device)
+        predictions_long = pred_binary.type(torch.LongTensor()).to(device)
 
         target_long = torch.reshape(target_long, (-1,)).to(device)
         predictions_long = torch.reshape(predictions_long, (-1,)).to(device)
@@ -56,7 +57,7 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_st
         f1_sc = f1(predictions_long, target_long)
         accuracy_sc = accuracy(predictions_long, target_long).to(device)
         recall_sc = recall(predictions_long, target_long).to(device)
-        biaccuracy_sc = binary_acc((predictions_long, target_long)).to(device)
+        # biaccuracy_sc = binary_acc((predictions_long, target_long)).to(device)
 
         # backpropagate loss and update weights
         optimiser.zero_grad()
@@ -69,8 +70,8 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_st
             'accuracy': accuracy_sc,
             'loss': loss.item(),
             'recall': recall_sc,
-            'F1 score': f1_sc,
-            'bi_acc': biaccuracy_sc
+            'F1 score': f1_sc
+            # 'bi_acc': biaccuracy_sc
         })
 
         global_step += 1
