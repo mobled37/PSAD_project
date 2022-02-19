@@ -93,6 +93,9 @@ def train(model, data_loader, loss_fn, optimiser, device, epochs):
     print('Finished Training')
 
 def validation_single_epoch(model, data_loader, loss_fn, writer, global_step, device):
+    """
+    Is that model.eval() needs .to(device) ?
+    """
     model.eval().to(device)
     prog_bar2 = tqdm.tqdm(desc=f'validation in progress',
                           total=len(data_loader),
@@ -108,14 +111,21 @@ def validation_single_epoch(model, data_loader, loss_fn, writer, global_step, de
     for idx, batch in enumerate(data_loader):
         inputs, targets = batch[0].to(device), batch[1].squeeze(1).to(device)
 
+        """
+        Score section
+        I don`t touch here because validation needs same logics
+        """
+
         # calculate loss
         predictions = model(inputs)
         loss = loss_fn(predictions, targets)
 
-        # F1 Score
+        # detach cpu cause we work on gpu
         predictions = predictions.detach().cpu()
-        pred_binary = predictions > .5
         targets = targets.detach().cpu()
+
+        # set prediction to binary
+        pred_binary = predictions > .5
 
         target_long = targets.type(torch.LongTensor).to(device)
         predictions_long = pred_binary.type(torch.LongTensor).to(device)
@@ -127,7 +137,8 @@ def validation_single_epoch(model, data_loader, loss_fn, writer, global_step, de
         f1_sc = f1(predictions_long, target_long)
         accuracy_sc = accuracy(predictions_long, target_long).to(device)
         recall_sc = recall(predictions_long, target_long).to(device)
-        # biaccuracy_sc = binary_acc((predictions_long, target_long)).to(device)
+
+        # for mean the score
         acc_sum += accuracy_sc
         f1_sum += f1_sc
         rec_sum += recall_sc
@@ -135,8 +146,11 @@ def validation_single_epoch(model, data_loader, loss_fn, writer, global_step, de
         # sum loss
         loss_sum += loss.item()
 
+        """
+        I just learn validation process don`t need backpropagation
+        """
         # backpropagate loss and update weights
-        loss.backward()
+        # loss.backward()
 
         # logger
         prog_bar2.update()
@@ -147,15 +161,17 @@ def validation_single_epoch(model, data_loader, loss_fn, writer, global_step, de
         'val_loss': loss_sum / len(data_loader),
         'val_recall': rec_sum / len(data_loader),
         'val_F1 score': f1_sum / len(data_loader)
-        # 'bi_acc': biaccuracy_sc
     }
 
     print(f"Loss: {loss_sum / len(data_loader)}")
-
     writer.add_scalar('Loss/train', loss.item(), global_step)
     return metrics, global_step
 
 def validation(model, data_loader, loss_fn, device, epochs):
+    """
+    Just delete optimiser, but IDK this is right
+    And I think we just delete that SummaryWriter() because we don`t use torchsummary
+    """
     writer = SummaryWriter()
     global_step = 0
     for i in range(epochs):
@@ -168,6 +184,22 @@ def validation(model, data_loader, loss_fn, device, epochs):
     print('Finished Validation')
 
 if __name__ == "__main__":
+
+    '''
+        in test mode change :
+        BATCH_SIZE, EPOCHS, scheduler milestones
+
+        check cpu system ram 
+        n_blocks
+
+        check gpu ram
+        BATCH_SIZE, n_blocks 
+
+        I WANT TO KNOW n_blocks MEAN!!!!
+
+        '''
+
+    # Hyperparameter
     BATCH_SIZE = 64
     EPOCHS = 30
     LEARNING_RATE = 0.001
@@ -178,7 +210,7 @@ if __name__ == "__main__":
     # FILENAME_DIR = '/Users/valleotb/Desktop/Valleotb/sample_metadata/metadata.json'
     # AUDIO_DIR = '/Users/valleotb/Desktop/Valleotb/sample_save'
 
-
+    # device setting
     if torch.cuda.is_available():
         device = "cuda"
 
@@ -189,6 +221,7 @@ if __name__ == "__main__":
     # multiprocessing
     torch.multiprocessing.set_start_method('spawn')
 
+    # dataset setting
     usd = PSAD_Dataset(
         audio_folder_dir=AUDIO_DIR,
         metadata_dir=FILENAME_DIR,
@@ -199,11 +232,13 @@ if __name__ == "__main__":
     # data seperation
     train_dataset, val_dataset = torch.utils.data.random_split(usd, [40000, len(usd)-40000])
 
-    # create a data loader for the train set
+    # create a data loader for train / validation
     train_data_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, num_workers=8)
     validation_data_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, num_workers=8)
 
+    # wandb initialize
     wandb.init()
+
     # construct model and assign it to device
     cnn = ResNet1D(
         in_channels=1,
@@ -214,6 +249,8 @@ if __name__ == "__main__":
         groups=1,
         n_block=4   # system RAM과 관련이 생겨버림 (4 이상하면 터지는듯)
     ).to(device)
+
+    # wandb logger
     wandb.watch(cnn)
 
     # instantiate loss function + optimiser

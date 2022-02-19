@@ -1,12 +1,16 @@
+# os library
 import os
 import os.path
-import torch
 import json
-from torch.utils.data import Dataset
+# torch library
+import torch
 import torchaudio
+from torch.utils.data import Dataset
 from torch.utils.data.dataloader import DataLoader
-import multiprocessing
+# tqdm logger
 import tqdm
+# python multiprocessing
+import multiprocessing
 
 
 class PSAD_Dataset(Dataset):
@@ -14,14 +18,14 @@ class PSAD_Dataset(Dataset):
     def __init__(self,
                  audio_folder_dir,
                  metadata_dir,
-                 device, load_first: bool = False):
+                 device,
+                 load_first: bool = False):
 
         self.audio_folder_dir = audio_folder_dir
         metadata_path = metadata_dir
         self.meta_data_json = json.load(open(metadata_path))
         # self.wav_path_list = list(self.meta_data_json.keys())[:100] - test mode
         self.wav_path_list = list(self.meta_data_json.keys())
-
         self.device = device
         self.load_first = load_first
         if load_first:
@@ -36,7 +40,6 @@ class PSAD_Dataset(Dataset):
                 )
             for dic in wav_dict_list:
                 self.wav_dict.update(dic)
-            # print(self.wav_dict)
 
     @staticmethod
     def load(fpath):
@@ -44,39 +47,30 @@ class PSAD_Dataset(Dataset):
         return {fpath: y}
 
     def __len__(self):
-        # return len(json.load(open(f'{self.metadata_dir}')))
         return len(self.wav_path_list)
 
     def __getitem__(self, index):
         file_name = self._get_file_name(index)
         audio_path = self._get_audio_file_path(file_name)
         if self.load_first:
-            # audio_path
+            # preloading data
             signal = self.wav_dict[audio_path]
         else:
+            # not preloading data
             signal, sr = torchaudio.load(audio_path)
         signal = signal.to(self.device)
         label = self._get_audio_label(index, self.wav_path_list)
         return signal, torch.Tensor([label])
 
     def _get_audio_file_path(self, file_name):
-        # path = os.path.join(f'{self.audio_folder_dir}/{file_name}')
         path = os.path.join(f'{file_name}')
         return path
 
     def _get_file_name(self, index):
-        # meta_dict = list(meta_data_json.keys())
-        # return meta_dict[index]
         return self.wav_path_list[index]
 
     def _get_audio_label(self, index, wav_path_list):
-        # meta_data_json = json.load(open(metadata_dir))
-        # meta_dict = list(meta_data_json.keys())
         return self.meta_data_json[wav_path_list[index]]
-
-    def get_files_count(self, folder_path):
-        dirlisting = os.listdir(folder_path)
-        return len(dirlisting)
 
 
 
@@ -101,5 +95,4 @@ if __name__ == "__main__":
     print(dataset)
 
     temp_loader = DataLoader(dataset=dataset, batch_size=4, shuffle=False, drop_last=False)
-    # print(PSAD_Dataset)
     print(next(iter(temp_loader)))

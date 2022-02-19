@@ -127,7 +127,7 @@ if __name__ == "__main__":
     '''
 
     # Hyperparameter
-    BATCH_SIZE = 64
+    BATCH_SIZE = 128
     EPOCHS = 300
     LEARNING_RATE = 0.001
 
@@ -169,7 +169,7 @@ if __name__ == "__main__":
         n_classes=10,
         stride=16,
         groups=1,
-        n_block=4   # system RAM과 관련이 생겨버림 (4 이상하면 터지는듯)
+        n_block=1   # system RAM과 관련인듯? (8일때 1.15gb ram 넘었다고 했는데 4일때 750mib 넘었다고 터짐)
     ).to(device)
 
     # log model on wandb
