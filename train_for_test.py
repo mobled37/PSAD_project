@@ -15,6 +15,15 @@ def create_data_loader(train_data, batch_size):
     train_dataloader = DataLoader(train_data, batch_size=batch_size)
     return train_dataloader
 
+def binary_acc(y_pred, y_test):
+    y_pred_tag = torch.round(torch.sigmoid(y_pred))
+
+    correct_results_sum = (y_pred_tag == y_test).sum().float()
+    acc = correct_results_sum / y_test.shape[0]
+    acc = torch.round(acc * 100)
+
+    return acc
+
 def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_step, device):
     prog_bar2 = tqdm.tqdm(desc=f'training in progress',
                           total=len(data_loader),
@@ -47,6 +56,7 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_st
         f1_sc = f1(predictions_long, target_long)
         accuracy_sc = accuracy(predictions_long, target_long).to(device)
         recall_sc = recall(predictions_long, target_long).to(device)
+        biaccuracy_sc = binary_acc((predictions_long, target_long)).to(device)
 
         # backpropagate loss and update weights
         optimiser.zero_grad()
@@ -59,7 +69,8 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_st
             'accuracy': accuracy_sc,
             'loss': loss.item(),
             'recall': recall_sc,
-            'F1 score': f1_sc
+            'F1 score': f1_sc,
+            'bi_acc': biaccuracy_sc
         })
 
         global_step += 1
@@ -79,7 +90,7 @@ def train(model, data_loader, loss_fn, optimiser, device, epochs):
 
 if __name__ == "__main__":
     BATCH_SIZE = 64
-    EPOCHS = 100
+    EPOCHS = 10
     LEARNING_RATE = 0.001
 
     FILENAME_DIR = '/content/drive/MyDrive/PSAD/sample_metadata/metadata.json'
