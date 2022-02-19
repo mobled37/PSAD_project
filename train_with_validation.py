@@ -92,12 +92,14 @@ def train(model, data_loader, loss_fn, optimiser, device, epochs):
     print('Finished Training')
 
 if __name__ == "__main__":
-    BATCH_SIZE = 128
-    EPOCHS = 300
+    BATCH_SIZE = 64
+    EPOCHS = 30
     LEARNING_RATE = 0.001
 
     FILENAME_DIR = '/content/drive/MyDrive/PSAD/sample_metadata/metadata.json'
     AUDIO_DIR = '/content/drive/MyDrive/PSAD/sample_save'
+    VALIDATION_AUDIO_DIR = '...'
+    VALIDATION_METADATA_DIR = '...'
 
     # FILENAME_DIR = '/Users/valleotb/Desktop/Valleotb/sample_metadata/metadata.json'
     # AUDIO_DIR = '/Users/valleotb/Desktop/Valleotb/sample_save'
@@ -119,8 +121,15 @@ if __name__ == "__main__":
         device=device,
         load_first=True
     )
+    psad_validation = PSAD_Dataset(
+        audio_folder_dir=VALIDATION_AUDIO_DIR,
+        metadata_dir=VALIDATION_METADATA_DIR,
+        device=device,
+        load_first=True
+    )
     # create a data loader for the train set
     train_data_loader = DataLoader(usd, batch_size=BATCH_SIZE, num_workers=8)
+    validation_data_loader = DataLoader(psad_validation, batch_size=BATCH_SIZE, num_workers=8)
 
     wandb.init()
     # construct model and assign it to device
@@ -141,7 +150,7 @@ if __name__ == "__main__":
                                  lr=LEARNING_RATE)
 
     # scheduler
-    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimiser, milestones=[100, 200], gamma=0.1)
+    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimiser, milestones=[10, 20], gamma=0.1)
 
     # train model
     train(cnn, train_data_loader, loss_fn, optimiser, device, EPOCHS)
