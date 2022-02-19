@@ -93,7 +93,7 @@ def train(model, data_loader, loss_fn, optimiser, device, epochs):
 
 if __name__ == "__main__":
     BATCH_SIZE = 128
-    EPOCHS = 300
+    EPOCHS = 30
     LEARNING_RATE = 0.001
 
     FILENAME_DIR = '/content/drive/MyDrive/PSAD/sample_metadata/metadata.json'
@@ -142,7 +142,7 @@ if __name__ == "__main__":
                                  lr=LEARNING_RATE)
 
     # scheduler
-    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimiser, milestones=[100, 200], gamma=0.1)
+    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimiser, milestones=[10, 20], gamma=0.1)
 
     # train model
     train(cnn, train_data_loader, loss_fn, optimiser, device, EPOCHS)
