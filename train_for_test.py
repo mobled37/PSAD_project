@@ -101,8 +101,8 @@ def train(model, data_loader, loss_fn, optimiser, device, epochs):
     print('Finished Training')
 
 if __name__ == "__main__":
-    BATCH_SIZE = 64
-    EPOCHS = 10
+    BATCH_SIZE = 128
+    EPOCHS = 100
     LEARNING_RATE = 0.001
 
     FILENAME_DIR = '/content/drive/MyDrive/PSAD/sample_metadata/metadata.json'
@@ -135,9 +135,9 @@ if __name__ == "__main__":
     cnn = ResNet1D(
         in_channels=1,
         base_filters=4,
-        kernel_size=16,
+        kernel_size=64,
         n_classes=10,
-        stride=2,
+        stride=16,
         groups=1,
         n_block=4
     ).to(device)
