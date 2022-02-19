@@ -137,7 +137,7 @@ if __name__ == "__main__":
         base_filters=4,
         kernel_size=64,
         n_classes=10,
-        stride=16,
+        stride=8,
         groups=1,
         n_block=4
     ).to(device)
