@@ -33,6 +33,7 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_st
     f1 = F1Score().to(device)
     accuracy = Accuracy().to(device)
     recall = Recall().to(device)
+    f1_sum, acc_sum, rec_sum, loss_sum = 0, 0, 0, 0
 
     # for inputs, targets in data_loader:
     for idx, batch in enumerate(data_loader):
@@ -58,6 +59,12 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_st
         accuracy_sc = accuracy(predictions_long, target_long).to(device)
         recall_sc = recall(predictions_long, target_long).to(device)
         # biaccuracy_sc = binary_acc((predictions_long, target_long)).to(device)
+        acc_sum += accuracy_sc
+        f1_sum += f1_sc
+        rec_sum += recall_sc
+
+        # sum loss
+        loss_sum += loss.item()
 
         # backpropagate loss and update weights
         optimiser.zero_grad()
@@ -66,26 +73,29 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_st
 
         # logger
         prog_bar2.update()
-        wandb.log({
-            'accuracy': accuracy_sc,
-            'loss': loss.item(),
-            'recall': recall_sc,
-            'F1 score': f1_sc
-            # 'bi_acc': biaccuracy_sc
-        })
-
         global_step += 1
+
+    metrics = {
+        'accuracy': acc_sum / len(data_loader),
+        'loss': loss_sum / len(data_loader),
+        'recall': rec_sum / len(data_loader),
+        'F1 score': f1_sum / len(data_loader)
+        # 'bi_acc': biaccuracy_sc
+    }
 
     print(f"Loss: {loss.item()}")
     writer.add_scalar('Loss/train', loss.item(), global_step)
+    return metrics, global_step
 
 def train(model, data_loader, loss_fn, optimiser, device, epochs):
     writer = SummaryWriter()
     global_step = 0
     for i in range(epochs):
         print(f"Epoch {i + 1}")
-        train_single_epoch(model, data_loader, loss_fn, optimiser,
+        metrics, step = train_single_epoch(model, data_loader, loss_fn, optimiser,
                            device=device, writer=writer, global_step=global_step)
+        global_step = step
+        wandb.log(metrics, step=global_step)
         print("-------------------")
     print('Finished Training')
 
