@@ -16,6 +16,7 @@ def create_data_loader(train_data, batch_size):
     return train_dataloader
 
 def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_step, device):
+    model.train().to(device)
     prog_bar2 = tqdm.tqdm(desc=f'training in progress',
                           total=len(data_loader),
                           position=1,
@@ -91,6 +92,81 @@ def train(model, data_loader, loss_fn, optimiser, device, epochs):
         print("-------------------")
     print('Finished Training')
 
+def validation_single_epoch(model, data_loader, loss_fn, writer, global_step, device):
+    model.eval().to(device)
+    prog_bar2 = tqdm.tqdm(desc=f'validation in progress',
+                          total=len(data_loader),
+                          position=1,
+                          leave=True)
+
+    f1 = F1Score().to(device)
+    accuracy = Accuracy().to(device)
+    recall = Recall().to(device)
+    f1_sum, acc_sum, rec_sum, loss_sum = 0, 0, 0, 0
+
+    # for inputs, targets in data_loader:
+    for idx, batch in enumerate(data_loader):
+        inputs, targets = batch[0].to(device), batch[1].squeeze(1).to(device)
+
+        # calculate loss
+        predictions = model(inputs)
+        loss = loss_fn(predictions, targets)
+
+        # F1 Score
+        predictions = predictions.detach().cpu()
+        pred_binary = predictions > .5
+        targets = targets.detach().cpu()
+
+        target_long = targets.type(torch.LongTensor).to(device)
+        predictions_long = pred_binary.type(torch.LongTensor).to(device)
+
+        target_long = torch.reshape(target_long, (-1,)).to(device)
+        predictions_long = torch.reshape(predictions_long, (-1,)).to(device)
+
+        # score
+        f1_sc = f1(predictions_long, target_long)
+        accuracy_sc = accuracy(predictions_long, target_long).to(device)
+        recall_sc = recall(predictions_long, target_long).to(device)
+        # biaccuracy_sc = binary_acc((predictions_long, target_long)).to(device)
+        acc_sum += accuracy_sc
+        f1_sum += f1_sc
+        rec_sum += recall_sc
+
+        # sum loss
+        loss_sum += loss.item()
+
+        # backpropagate loss and update weights
+        loss.backward()
+
+        # logger
+        prog_bar2.update()
+        global_step += 1
+
+    metrics = {
+        'val_accuracy': acc_sum / len(data_loader),
+        'val_loss': loss_sum / len(data_loader),
+        'val_recall': rec_sum / len(data_loader),
+        'val_F1 score': f1_sum / len(data_loader)
+        # 'bi_acc': biaccuracy_sc
+    }
+
+    print(f"Loss: {loss_sum / len(data_loader)}")
+
+    writer.add_scalar('Loss/train', loss.item(), global_step)
+    return metrics, global_step
+
+def validation(model, data_loader, loss_fn, device, epochs):
+    writer = SummaryWriter()
+    global_step = 0
+    for i in range(epochs):
+        print(f"Epoch {i + 1}")
+        metrics, step = validation_single_epoch(model, data_loader, loss_fn,
+                           device=device, writer=writer, global_step=global_step)
+        global_step = step
+        wandb.log(metrics, step=global_step)
+        print("-------------------")
+    print('Finished Validation')
+
 if __name__ == "__main__":
     BATCH_SIZE = 64
     EPOCHS = 30
@@ -98,8 +174,6 @@ if __name__ == "__main__":
 
     FILENAME_DIR = '/content/drive/MyDrive/PSAD/sample_metadata/metadata.json'
     AUDIO_DIR = '/content/drive/MyDrive/PSAD/sample_save'
-    VALIDATION_AUDIO_DIR = '...'
-    VALIDATION_METADATA_DIR = '...'
 
     # FILENAME_DIR = '/Users/valleotb/Desktop/Valleotb/sample_metadata/metadata.json'
     # AUDIO_DIR = '/Users/valleotb/Desktop/Valleotb/sample_save'
@@ -121,15 +195,13 @@ if __name__ == "__main__":
         device=device,
         load_first=True
     )
-    psad_validation = PSAD_Dataset(
-        audio_folder_dir=VALIDATION_AUDIO_DIR,
-        metadata_dir=VALIDATION_METADATA_DIR,
-        device=device,
-        load_first=True
-    )
+
+    # data seperation
+    train_dataset, val_dataset = torch.utils.data.random_split(usd, [40000, len(usd)-40000])
+
     # create a data loader for the train set
-    train_data_loader = DataLoader(usd, batch_size=BATCH_SIZE, num_workers=8)
-    validation_data_loader = DataLoader(psad_validation, batch_size=BATCH_SIZE, num_workers=8)
+    train_data_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, num_workers=8)
+    validation_data_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, num_workers=8)
 
     wandb.init()
     # construct model and assign it to device
@@ -154,6 +226,7 @@ if __name__ == "__main__":
 
     # train model
     train(cnn, train_data_loader, loss_fn, optimiser, device, EPOCHS)
+    validation(cnn, validation_data_loader, loss_fn, device, EPOCHS)
 
     torch.save(cnn.state_dict(), "/content/drive/MyDrive/psad_resnet_checkpoints/psad_resnet.pth")
     print("Model Trained and Stored at psad_resnet.pth")
