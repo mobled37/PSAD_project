@@ -20,7 +20,7 @@ class PSAD_Dataset(Dataset):
         metadata_path = metadata_dir
         self.meta_data_json = json.load(open(metadata_path))
         # self.wav_path_list = list(self.meta_data_json.keys())[:100] - test mode
-        self.wav_path_list = list(self.meta_data_json.keys())[:100]
+        self.wav_path_list = list(self.meta_data_json.keys())
 
         self.device = device
         self.load_first = load_first
