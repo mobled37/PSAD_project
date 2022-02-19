@@ -15,15 +15,6 @@ def create_data_loader(train_data, batch_size):
     train_dataloader = DataLoader(train_data, batch_size=batch_size)
     return train_dataloader
 
-# def binary_acc(y_pred, y_test):
-#     y_pred_tag = torch.round(torch.sigmoid(y_pred))
-#
-#     correct_results_sum = (y_pred_tag == y_test).sum().float()
-#     acc = correct_results_sum / y_test.shape[0]
-#     acc = torch.round(acc * 100)
-#
-#     return acc
-
 def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_step, device):
     prog_bar2 = tqdm.tqdm(desc=f'training in progress',
                           total=len(data_loader),
@@ -102,14 +93,16 @@ def train(model, data_loader, loss_fn, optimiser, device, epochs):
 
 if __name__ == "__main__":
     BATCH_SIZE = 128
-    EPOCHS = 100
+    EPOCHS = 300
     LEARNING_RATE = 0.001
 
     FILENAME_DIR = '/content/drive/MyDrive/PSAD/sample_metadata/metadata.json'
     AUDIO_DIR = '/content/drive/MyDrive/PSAD/sample_save'
+    # VALIDATION_AUDIO_DIR =
 
     # FILENAME_DIR = '/Users/valleotb/Desktop/Valleotb/sample_metadata/metadata.json'
     # AUDIO_DIR = '/Users/valleotb/Desktop/Valleotb/sample_save'
+
 
     if torch.cuda.is_available():
         device = "cuda"
@@ -134,12 +127,12 @@ if __name__ == "__main__":
     # construct model and assign it to device
     cnn = ResNet1D(
         in_channels=1,
-        base_filters=4,
+        base_filters=64,
         kernel_size=64,
         n_classes=10,
-        stride=8,
+        stride=16,
         groups=1,
-        n_block=4
+        n_block=48
     ).to(device)
     wandb.watch(cnn)
 
@@ -147,6 +140,9 @@ if __name__ == "__main__":
     loss_fn = nn.BCELoss()
     optimiser = torch.optim.Adam(cnn.parameters(),
                                  lr=LEARNING_RATE)
+
+    # scheduler
+    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimiser, milestones=[100, 200], gamma=0.1)
 
     # train model
     train(cnn, train_data_loader, loss_fn, optimiser, device, EPOCHS)
