@@ -131,7 +131,7 @@ if __name__ == "__main__":
         n_classes=10,
         stride=16,
         groups=1,
-        n_block=4   # system RAM과 관련이 생겨버림 (4 이상하면 터지는듯)
+        n_block=8   # system RAM과 관련이 생겨버림 (4 이상하면 터지는듯)
     ).to(device)
     wandb.watch(cnn)
 
