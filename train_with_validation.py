@@ -201,7 +201,7 @@ if __name__ == "__main__":
 
     # Hyperparameter
     BATCH_SIZE = 64
-    EPOCHS = 300
+    EPOCHS = 210
     LEARNING_RATE = 0.001
 
     FILENAME_DIR = '/content/drive/MyDrive/PSAD/sample_metadata/metadata.json'
@@ -242,12 +242,12 @@ if __name__ == "__main__":
     # construct model and assign it to device
     cnn = ResNet1D(
         in_channels=1,
-        base_filters=16,
+        base_filters=4,
         kernel_size=64,
         n_classes=10,
         stride=16,
         groups=1,
-        n_block=1   # system RAM과 관련이 생겨버림 (4 이상하면 터지는듯)
+        n_block=4   # system RAM과 관련이 생겨버림 (4 이상하면 터지는듯)
     ).to(device)
 
     # wandb logger
@@ -259,7 +259,7 @@ if __name__ == "__main__":
                                  lr=LEARNING_RATE)
 
     # scheduler
-    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimiser, milestones=[100, 200], gamma=0.1)
+    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimiser, milestones=[70, 140], gamma=0.1)
 
     # train model
     train(cnn, train_data_loader, loss_fn, optimiser, device, EPOCHS)
