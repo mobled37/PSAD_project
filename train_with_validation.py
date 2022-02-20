@@ -200,7 +200,7 @@ if __name__ == "__main__":
         '''
 
     # Hyperparameter
-    BATCH_SIZE = 32
+    BATCH_SIZE = 64
     EPOCHS = 300
     LEARNING_RATE = 0.001
 
@@ -242,7 +242,7 @@ if __name__ == "__main__":
     # construct model and assign it to device
     cnn = ResNet1D(
         in_channels=1,
-        base_filters=32,
+        base_filters=16,
         kernel_size=64,
         n_classes=10,
         stride=16,
