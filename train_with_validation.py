@@ -200,7 +200,7 @@ if __name__ == "__main__":
         '''
 
     # Hyperparameter
-    BATCH_SIZE = 64
+    BATCH_SIZE = 128
     EPOCHS = 210
     LEARNING_RATE = 0.001
 
