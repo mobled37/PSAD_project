@@ -201,7 +201,7 @@ if __name__ == "__main__":
 
     # Hyperparameter
     BATCH_SIZE = 32
-    EPOCHS = 30
+    EPOCHS = 300
     LEARNING_RATE = 0.001
 
     FILENAME_DIR = '/content/drive/MyDrive/PSAD/sample_metadata/metadata.json'
