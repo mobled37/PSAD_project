@@ -1,5 +1,5 @@
 import torch
-import torchaudio
+
 
 from torch import nn
 from torch.utils.data import DataLoader
@@ -8,7 +8,7 @@ from resnet1d import ResNet1D
 from torch.utils.tensorboard import SummaryWriter
 import tqdm
 import wandb
-import torchmetrics
+
 from torchmetrics import F1Score, Accuracy, Recall
 
 def create_data_loader(train_data, batch_size):
@@ -200,7 +200,7 @@ if __name__ == "__main__":
         '''
 
     # Hyperparameter
-    BATCH_SIZE = 64
+    BATCH_SIZE = 32
     EPOCHS = 30
     LEARNING_RATE = 0.001
 
@@ -259,7 +259,7 @@ if __name__ == "__main__":
                                  lr=LEARNING_RATE)
 
     # scheduler
-    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimiser, milestones=[10, 20], gamma=0.1)
+    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimiser, milestones=[100, 200], gamma=0.1)
 
     # train model
     train(cnn, train_data_loader, loss_fn, optimiser, device, EPOCHS)
