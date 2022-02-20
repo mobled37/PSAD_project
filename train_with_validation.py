@@ -201,7 +201,7 @@ if __name__ == "__main__":
 
     # Hyperparameter
     BATCH_SIZE = 128
-    EPOCHS = 210
+    EPOCHS = 100
     LEARNING_RATE = 0.001
 
     FILENAME_DIR = '/content/drive/MyDrive/PSAD/sample_metadata/metadata.json'
@@ -247,7 +247,7 @@ if __name__ == "__main__":
         n_classes=10,
         stride=16,
         groups=1,
-        n_block=4   # system RAM과 관련이 생겨버림 (4 이상하면 터지는듯)
+        n_block=8   # system RAM과 관련이 생겨버림 (4 이상하면 터지는듯)
     ).to(device)
 
     # wandb logger
@@ -259,7 +259,7 @@ if __name__ == "__main__":
                                  lr=LEARNING_RATE)
 
     # scheduler
-    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimiser, milestones=[70, 140], gamma=0.1)
+    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimiser, milestones=[50, 75], gamma=0.1)
 
     # train model
     train(cnn, train_data_loader, loss_fn, optimiser, device, EPOCHS)
