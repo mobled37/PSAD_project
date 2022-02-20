@@ -22,10 +22,10 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_st
                           position=1,
                           leave=True)
 
-    f1 = F1Score().to(device)
+    # f1 = F1Score().to(device)
     accuracy = Accuracy().to(device)
-    recall = Recall().to(device)
-    f1_sum, acc_sum, rec_sum, loss_sum = 0, 0, 0, 0
+    # recall = Recall().to(device)
+    acc_sum, loss_sum = 0, 0
 
     # for inputs, targets in data_loader:
     for idx, batch in enumerate(data_loader):
@@ -47,13 +47,13 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_st
         predictions_long = torch.reshape(predictions_long, (-1,)).to(device)
 
         # score
-        f1_sc = f1(predictions_long, target_long)
+        # f1_sc = f1(predictions_long, target_long)
         accuracy_sc = accuracy(predictions_long, target_long).to(device)
-        recall_sc = recall(predictions_long, target_long).to(device)
+        # recall_sc = recall(predictions_long, target_long).to(device)
         # biaccuracy_sc = binary_acc((predictions_long, target_long)).to(device)
         acc_sum += accuracy_sc
-        f1_sum += f1_sc
-        rec_sum += recall_sc
+        # f1_sum += f1_sc
+        # rec_sum += recall_sc
 
         # sum loss
         loss_sum += loss.item()
@@ -70,8 +70,8 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, writer, global_st
     metrics = {
         'accuracy': acc_sum / len(data_loader),
         'loss': loss_sum / len(data_loader),
-        'recall': rec_sum / len(data_loader),
-        'F1 score': f1_sum / len(data_loader)
+        # 'recall': rec_sum / len(data_loader),
+        # 'F1 score': f1_sum / len(data_loader)
         # 'bi_acc': biaccuracy_sc
     }
 
@@ -102,10 +102,10 @@ def validation_single_epoch(model, data_loader, loss_fn, writer, global_step, de
                           position=1,
                           leave=True)
 
-    f1 = F1Score().to(device)
+    # f1 = F1Score().to(device)
     accuracy = Accuracy().to(device)
-    recall = Recall().to(device)
-    f1_sum, acc_sum, rec_sum, loss_sum = 0, 0, 0, 0
+    # recall = Recall().to(device)
+    acc_sum, loss_sum = 0, 0
 
     # for inputs, targets in data_loader:
     for idx, batch in enumerate(data_loader):
@@ -134,14 +134,14 @@ def validation_single_epoch(model, data_loader, loss_fn, writer, global_step, de
         predictions_long = torch.reshape(predictions_long, (-1,)).to(device)
 
         # score
-        f1_sc = f1(predictions_long, target_long)
+        # f1_sc = f1(predictions_long, target_long)
         accuracy_sc = accuracy(predictions_long, target_long).to(device)
-        recall_sc = recall(predictions_long, target_long).to(device)
+        # recall_sc = recall(predictions_long, target_long).to(device)
 
         # for mean the score
         acc_sum += accuracy_sc
-        f1_sum += f1_sc
-        rec_sum += recall_sc
+        # f1_sum += f1_sc
+        # rec_sum += recall_sc
 
         # sum loss
         loss_sum += loss.item()
@@ -159,8 +159,8 @@ def validation_single_epoch(model, data_loader, loss_fn, writer, global_step, de
     metrics = {
         'val_accuracy': acc_sum / len(data_loader),
         'val_loss': loss_sum / len(data_loader),
-        'val_recall': rec_sum / len(data_loader),
-        'val_F1 score': f1_sum / len(data_loader)
+        # 'val_recall': rec_sum / len(data_loader),
+        # 'val_F1 score': f1_sum / len(data_loader)
     }
 
     print(f"Loss: {loss_sum / len(data_loader)}")
