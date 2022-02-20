@@ -242,7 +242,7 @@ if __name__ == "__main__":
     # construct model and assign it to device
     cnn = ResNet1D(
         in_channels=1,
-        base_filters=64,
+        base_filters=32,
         kernel_size=64,
         n_classes=10,
         stride=16,
