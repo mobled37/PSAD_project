@@ -91,7 +91,7 @@ def train(model, train_loader, val_loader, loss_fn, optimiser, device, epochs):
                                            optimiser=optimiser,
                                            device=device,
                                            global_step=global_step)
-        wandb.log(metrics, step=global_step)
+
         metrics, _ = train_single_epoch(model=model,
                                         data_loader=val_loader,
                                         loss_fn=loss_fn,
@@ -99,6 +99,8 @@ def train(model, train_loader, val_loader, loss_fn, optimiser, device, epochs):
                                         device=device,
                                         global_step=global_step,
                                         val=True)
+
+        wandb.log(metrics, step=global_step)
         global_step = step
         print("-------------------")
     print('Finished Training')
@@ -122,7 +124,7 @@ if __name__ == "__main__":
     """
 
     # Hyperparameter
-    BATCH_SIZE = 64
+    BATCH_SIZE = 32
     EPOCHS = 50
     LEARNING_RATE = 0.001
 
@@ -171,7 +173,7 @@ if __name__ == "__main__":
         n_classes=10,
         stride=16,
         groups=1,
-        n_block=14
+        n_block=18
     ).to(device)
 
     # wandb logger
