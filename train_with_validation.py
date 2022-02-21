@@ -85,6 +85,7 @@ def train(model, train_loader, val_loader, loss_fn, optimiser, device, epochs):
                                            optimiser=optimiser,
                                            device=device,
                                            global_step=global_step)
+        wandb.log(metrics, step=global_step)
 
         metrics, _ = train_single_epoch(model=model,
                                         data_loader=val_loader,
