@@ -85,11 +85,20 @@ def train(model, train_loader, val_loader, loss_fn, optimiser, device, epochs):
     global_step = 0
     for i in range(epochs):
         print(f"Epoch {i + 1}")
-        metrics, step = train_single_epoch(model, train_loader, loss_fn, optimiser,
-                           device=device, global_step=global_step)
+        metrics, step = train_single_epoch(model=model,
+                                           data_loader=train_loader,
+                                           loss_fn=loss_fn,
+                                           optimiser=optimiser,
+                                           device=device,
+                                           global_step=global_step)
         wandb.log(metrics, step=global_step)
-        metrics, _ = train_single_epoch(model, val_loader, loss_fn, optimiser,
-                                        device, global_step, val=True)
+        metrics, _ = train_single_epoch(model=model,
+                                        data_loader=val_loader,
+                                        loss_fn=loss_fn,
+                                        optimiser=optimiser,
+                                        device=device,
+                                        global_step=global_step,
+                                        val=True)
         global_step = step
         print("-------------------")
     print('Finished Training')
@@ -126,7 +135,7 @@ if __name__ == "__main__":
 
     # device setting
     if torch.cuda.is_available():
-        device = "cuda"
+        device = "cuda:0"
     else:
         device = "cpu"
     print(f'Using {device} device')
@@ -162,7 +171,7 @@ if __name__ == "__main__":
         n_classes=10,
         stride=16,
         groups=1,
-        n_block=16  # n_blocks 의미 알아낼것
+        n_block=16
     ).to(device)
 
     # wandb logger
