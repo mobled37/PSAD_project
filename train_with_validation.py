@@ -93,95 +93,6 @@ def train(model, train_loader, val_loader, loss_fn, optimiser, device, epochs):
         print("-------------------")
     print('Finished Training')
 
-def validation_single_epoch(model, data_loader, loss_fn, writer, global_step, device):
-    """
-    Is that model.eval() needs .to(device) ?
-    """
-    model.eval().to(device)
-    prog_bar2 = tqdm.tqdm(desc=f'validation in progress',
-                          total=len(data_loader),
-                          position=1,
-                          leave=True)
-
-    # f1 = F1Score().to(device)
-    accuracy = Accuracy().to(device)
-    # recall = Recall().to(device)
-    acc_sum, loss_sum = 0, 0
-
-    # for inputs, targets in data_loader:
-    for idx, batch in enumerate(data_loader):
-        inputs, targets = batch[0].to(device), batch[1].squeeze(1).to(device)
-
-        """
-        Score section
-        I don`t touch here because validation needs same logics
-        """
-
-        # calculate loss
-        predictions = model(inputs)
-        loss = loss_fn(predictions, targets)
-
-        # detach cpu cause we work on gpu
-        predictions = predictions.detach().cpu()
-        targets = targets.detach().cpu()
-
-        # set prediction to binary
-        pred_binary = predictions > .5
-
-        target_long = targets.type(torch.LongTensor).to(device)
-        predictions_long = pred_binary.type(torch.LongTensor).to(device)
-
-        target_long = torch.reshape(target_long, (-1,)).to(device)
-        predictions_long = torch.reshape(predictions_long, (-1,)).to(device)
-
-        # score
-        # f1_sc = f1(predictions_long, target_long)
-        accuracy_sc = accuracy(predictions_long, target_long).to(device)
-        # recall_sc = recall(predictions_long, target_long).to(device)
-
-        # for mean the score
-        acc_sum += accuracy_sc
-
-        # sum loss
-        loss_sum += loss.item()
-
-        """
-        I just learn validation process don`t need backpropagation
-        """
-        # backpropagate loss and update weights
-        # loss.backward()
-
-        # logger
-        prog_bar2.update()
-        global_step += 1
-
-    metrics = {
-        'val_accuracy': acc_sum / len(data_loader),
-        'val_loss': loss_sum / len(data_loader),
-        # 'val_recall': rec_sum / len(data_loader),
-        # 'val_F1 score': f1_sum / len(data_loader)
-    }
-
-    print(f"Loss: {loss_sum / len(data_loader)}")
-    # writer.add_scalar('Loss/train', loss.item(), global_step)
-    return metrics, global_step
-
-def validation(model, data_loader, loss_fn, device, epochs):
-    """
-    Just delete optimiser, but IDK this is right
-    And I think we just delete that SummaryWriter() because we don`t use torchsummary
-    """
-    # writer = SummaryWriter()
-    global_step = 0
-    for i in range(epochs):
-        print(f"Epoch {i + 1}")
-        metrics, step = validation_single_epoch(model, data_loader, loss_fn,
-                           device=device, writer=writer, global_step=global_step)
-        global_step = step
-        wandb.log(metrics, step=global_step)
-        print("-------------------")
-    print('Finished Validation')
-
 if __name__ == "__main__":
 
     """
@@ -201,7 +112,7 @@ if __name__ == "__main__":
     """
 
     # Hyperparameter
-    BATCH_SIZE = 128
+    BATCH_SIZE = 64
     EPOCHS = 50
     LEARNING_RATE = 0.001
 
@@ -230,8 +141,10 @@ if __name__ == "__main__":
         load_first=True
     )
 
+
     # data seperation
-    train_dataset, val_dataset = torch.utils.data.random_split(usd, [40000, len(usd)-40000])
+    train_data_percent = int(0.8 * len(usd))
+    train_dataset, val_dataset = torch.utils.data.random_split(usd, [train_data_percent, len(usd) - train_data_percent])
 
     # create a data loader for train / validation
     train_data_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, num_workers=8)
