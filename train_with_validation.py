@@ -184,21 +184,21 @@ def validation(model, data_loader, loss_fn, device, epochs):
 
 if __name__ == "__main__":
 
-        """
-        in test mode change :
-        BATCH_SIZE, EPOCHS, scheduler milestones
-
-        check cpu system ram 
-        base_filters
-
-        check gpu ram
-        BATCH_SIZE, base_filters
-        
-        performance check
-        kernel_size, stride, n_blocks
-
-        I WANT TO KNOW n_blocks MEAN!!!!
-        """
+    """
+    in test mode change :
+    BATCH_SIZE, EPOCHS, scheduler milestones
+    
+    check cpu system ram 
+    base_filters
+    
+    check gpu ram
+    BATCH_SIZE, base_filters
+    
+    performance check
+    kernel_size, stride, n_blocks
+    
+    I WANT TO KNOW n_blocks MEAN!!!!
+    """
 
     # Hyperparameter
     BATCH_SIZE = 128
