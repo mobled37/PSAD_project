@@ -36,11 +36,12 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, global_step, devi
         inputs, targets = batch[0].to(device), batch[1].squeeze(1).to(device)
 
         # calculate loss
-        if val:
-            with torch.no_grad:
-                predictions = model(inputs)
-        else:
-            predictions = model(inputs)
+        # if val:
+        #     with torch.no_grad:
+        #         predictions = model(inputs)
+        # else:
+        #     predictions = model(inputs)
+        predictions = model(inputs)
         loss = loss_fn(predictions, targets)
 
         # F1 Score
