@@ -171,7 +171,7 @@ if __name__ == "__main__":
         n_classes=10,
         stride=16,
         groups=1,
-        n_block=16
+        n_block=14
     ).to(device)
 
     # wandb logger
