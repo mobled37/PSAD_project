@@ -235,7 +235,7 @@ if __name__ == "__main__":
 
     # create a data loader for train / validation
     train_data_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, num_workers=8)
-    # validation_data_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, num_workers=8)
+    validation_data_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, num_workers=8)
 
     # wandb initialize
     wandb.init()
@@ -263,7 +263,13 @@ if __name__ == "__main__":
     scheduler = torch.optim.lr_scheduler.MultiStepLR(optimiser, milestones=[20, 40], gamma=0.1)
 
     # train model
-    train(cnn, train_data_loader, loss_fn, optimiser, device, EPOCHS)
+    train(model=cnn,
+          train_loader=train_data_loader,
+          val_loader=validation_data_loader,
+          loss_fn=loss_fn,
+          optimiser=optimiser,
+          device=device,
+          epochs=EPOCHS)
     torch.save(cnn.state_dict(), "/content/drive/MyDrive/psad_resnet_checkpoints/psad_resnet.pth")
 
     # validation(cnn, validation_data_loader, loss_fn, device, EPOCHS)
