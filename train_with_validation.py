@@ -35,12 +35,6 @@ def train_single_epoch(model, data_loader, loss_fn, optimiser, global_step, devi
     for idx, batch in enumerate(data_loader):
         inputs, targets = batch[0].to(device), batch[1].squeeze(1).to(device)
 
-        # calculate loss
-        # if val:
-        #     with torch.no_grad:
-        #         predictions = model(inputs)
-        # else:
-        #     predictions = model(inputs)
         predictions = model(inputs)
         loss = loss_fn(predictions, targets)
 
